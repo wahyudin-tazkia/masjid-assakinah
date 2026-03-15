@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Display Masjid As-Sakinah</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Amiri:wght@400;700&family=Exo+2:wght@300;400;600;700;800&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --gold: #d4a84b;
+  --gold2: #f0c96e;
+  --gold3: #ffe08a;
+  --green: #00e676;
+  --green2: #00c853;
+  --teal: #00bcd4;
+  --teal2: #00e5ff;
+  --blue: #1565c0;
+  --blue2: #1976d2;
+  --orange: #ff6d00;
+  --orange2: #ff8f00;
+  --amber: #ffc107;
+  --navy: #030d1f;
+  --navy2: #041226;
+  --glow-green: rgba(0,230,118,0.6);
+  --glow-teal: rgba(0,188,212,0.6);
+  --glow-gold: rgba(212,168,75,0.6);
+  --glow-red: rgba(255,82,82,0.6);
+}
+
+html, body {
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  background: #000;
+  font-family: 'Exo 2', sans-serif;
+}
+
+/* ===== MAIN SCREEN ===== */
+.screen {
+  width: 100vw; height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== IQOMAH FULLSCREEN MODE ===== */
+.screen.iqomah-mode .top-bar,
+.screen.iqomah-mode .slideshow-panel,
+.screen.iqomah-mode .info-bar,
+.screen.iqomah-mode .sholat-bar {
+  display: none !important;
+}
+
+.screen.iqomah-mode .middle-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.screen.iqomah-mode .countdown-panel {
+  position: relative;
+  width: 90vw;
+  max-width: 1200px;
+  padding: 60px 80px;
+  margin: 0 auto;
+  transform: scale(1.5);
+}
+
+.screen.iqomah-mode .cd-sholat-name {
+  font-size: 3rem !important;
+}
+
+.screen.iqomah-mode .cd-timer {
+  font-size: 7rem !important;
+}
+
+.screen.iqomah-mode .cd-message {
+  font-size: 1.8rem !important;
+}
+
+/* ===== BACKGROUND ===== */
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.bg-mosque {
+  position: absolute; inset: 0;
+  background:
+    url('https://awsimages.detik.net.id/community/media/visual/2022/10/26/6-rumah-ibadah-terbesar-di-dunia-salah-satunya-ada-di-indonesia-3.jpeg?w=1200') center/cover no-repeat;
+  filter: brightness(0.35) saturate(0.7);
+}
+
+.bg-overlay {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(2,12,30,0.92) 0%,
+      rgba(2,12,30,0.3) 30%,
+      rgba(2,12,30,0.15) 55%,
+      rgba(2,12,30,0.75) 78%,
+      rgba(2,12,30,0.97) 100%
+    ),
+    linear-gradient(90deg,
+      rgba(0,20,60,0.5) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(0,20,60,0.5) 100%
+    );
+}
+
+.bg-scan {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,20,50,0.08) 3px,
+    rgba(0,20,50,0.08) 4px
+  );
+  pointer-events: none;
+}
+
+.top-glow-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--teal2), var(--gold), transparent);
+  box-shadow: 0 0 20px var(--gold), 0 0 40px rgba(0,229,255,0.5);
+  z-index: 50;
+}
+
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,188,212,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,188,212,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* ===== TOP HEADER BAR ===== */
+.top-bar {
+  position: relative; z-index: 20;
+  display: flex;
+  align-items: stretch;
+  padding: 0 0;
+  height: 110px;
+  flex-shrink: 0;
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg,
+    rgba(0,30,80,0.95) 0%,
+    rgba(0,50,120,0.85) 100%
+  );
+  border-right: 1px solid rgba(0,188,212,0.3);
+  border-bottom: 2px solid rgba(0,188,212,0.4);
+  min-width: 420px;
+  position: relative;
+  overflow: hidden;
+}
+.top-left::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(45deg, transparent, rgba(0,188,212,0.05));
+}
+.top-left::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--teal2), var(--gold), var(--teal2));
+  opacity: 0.7;
+}
+
+.logo-box {
+  width: 76px; height: 76px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(0,60,140,0.9), rgba(0,30,80,0.9));
+  border: 2px solid rgba(0,188,212,0.5);
+  display: flex; align-items:center; justify-content:center;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,188,212,0.3), inset 0 0 20px rgba(0,188,212,0.05);
+  overflow: hidden;
+}
+.logo-box img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  display: none;
+}
+.logo-box .logo-icon {
+  font-size: 2.4rem;
+  filter: drop-shadow(0 0 8px rgba(0,229,255,0.8));
+}
+
+.masjid-info { flex: 1; }
+.masjid-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 2px;
+  line-height: 1.1;
+  text-shadow: 0 0 20px rgba(0,229,255,0.5);
+  text-transform: uppercase;
+}
+.masjid-name span { color: var(--teal2); }
+.masjid-addr {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.55);
+  font-weight: 400;
+  margin-top: 5px;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+}
+
+.top-center {
+  flex: 1;
+  background: linear-gradient(180deg,
+    rgba(0,10,30,0.88) 0%,
+    rgba(0,15,40,0.6) 100%
+  );
+  border-bottom: 2px solid rgba(0,188,212,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32px;
+}
+
+.top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 14px 32px;
+  background: linear-gradient(135deg,
+    rgba(0,30,60,0.95) 0%,
+    rgba(0,15,40,0.95) 100%
+  );
+  border-left: 1px solid rgba(212,168,75,0.25);
+  border-bottom: 2px solid rgba(212,168,75,0.4);
+  min-width: 240px;
+  position: relative;
+}
+.top-right::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold2), transparent);
+}
+
+.clock-time {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.7rem;
+  font-weight: 700;
+  color: var(--gold3);
+  letter-spacing: 3px;
+  line-height: 1;
+  text-shadow: 0 0 30px var(--glow-gold), 0 0 60px rgba(212,168,75,0.3);
+}
+.clock-hijri {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  font-weight: 500;
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ===== MIDDLE AREA ===== */
+.middle-area {
+  flex: 1;
+  position: relative; z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 30px;
+  gap: 20px;
+}
+
+/* Countdown panel */
+.countdown-panel {
+  background: linear-gradient(135deg,
+    rgba(0,30,10,0.88) 0%,
+    rgba(0,50,20,0.75) 100%
+  );
+  border: 1px solid rgba(0,230,118,0.35);
+  border-radius: 14px;
+  padding: 20px 30px;
+  min-width: 400px;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(0,230,118,0.1),
+    0 8px 32px rgba(0,0,0,0.5),
+    0 0 60px rgba(0,230,118,0.08),
+    inset 0 0 40px rgba(0,230,118,0.03);
+  overflow: hidden;
+  text-align: center;
+}
+.countdown-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  box-shadow: 0 0 10px var(--glow-green);
+}
+.countdown-panel::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,230,118,0.4), transparent);
+}
+
+/* Waktu Sholat Tiba Mode */
+.countdown-panel.sholat-time {
+  background: linear-gradient(135deg,
+    rgba(80,0,0,0.95) 0%,
+    rgba(50,0,0,0.9) 100%
+  );
+  border: 2px solid rgba(255,82,82,0.6);
+}
+
+.countdown-panel.sholat-time::before {
+  background: linear-gradient(90deg, transparent, #ff5252, transparent);
+  box-shadow: 0 0 20px var(--glow-red);
+}
+
+.cd-sholat-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+.countdown-panel.sholat-time .cd-sholat-name {
+  color: #ff5252;
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+
+.cd-timer {
+  font-family: 'Orbitron', monospace;
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 3px;
+  line-height: 1;
+  text-shadow: 0 0 30px var(--glow-green), 0 0 60px rgba(0,230,118,0.3);
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown-panel.sholat-time .cd-timer {
+  color: #ff5252;
+  text-shadow: 0 0 40px var(--glow-red), 0 0 80px rgba(255,82,82,0.4);
+}
+
+.cd-message {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.7);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.countdown-panel.sholat-time .cd-message {
+  color: #ff5252;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+/* ===== SLIDESHOW PANEL ===== */
+.slideshow-panel {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-content {
+  display: none;
+  width: 100%;
+  height: 100%;
+  animation: slideFade 0.8s ease-in-out;
+}
+
+.slide-content.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#slide-keuangan.active {
+  justify-content: flex-start;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  overflow-y: auto;
+}
+
+#slide-keuangan .keuangan-slide {
+  overflow: visible;
+  max-height: none;
+}
+
+@keyframes slideFade {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Hadits Slide */
+.hadits-slide {
+  text-align: center;
+  padding: 20px;
+}
+
+.hadits-ar {
+  font-family: 'Amiri', serif;
+  font-size: 2.2rem;
+  color: var(--gold2);
+  text-shadow: 0 0 30px rgba(212,168,75,0.4);
+  line-height: 2;
+  margin-bottom: 20px;
+  direction: rtl;
+}
+
+.hadits-id {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+  max-width: 800px;
+}
+
+.hadits-source {
+  font-size: 0.85rem;
+  color: var(--teal2);
+  margin-top: 15px;
+  font-style: italic;
+}
+
+/* Keuangan Slide */
+.keuangan-slide {
+  width: 100%;
+  max-width: 900px;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.keuangan-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.2rem;
+  color: var(--gold2);
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(212,168,75,0.5);
+}
+
+.keuangan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.keuangan-item {
+  background: linear-gradient(135deg,
+    rgba(0,40,20,0.8) 0%,
+    rgba(0,30,15,0.8) 100%
+  );
+  border: 1px solid rgba(0,230,118,0.3);
+  border-radius: 10px;
+  padding: 15px 12px;
+  text-align: center;
+}
+
+.keuangan-item.pemasukan {
+  border-color: rgba(0,230,118,0.5);
+  background: linear-gradient(135deg,
+    rgba(0,50,20,0.8) 0%,
+    rgba(0,40,15,0.8) 100%
+  );
+}
+
+.keuangan-item.pengeluaran {
+  border-color: rgba(255,109,0,0.5);
+  background: linear-gradient(135deg,
+    rgba(50,20,0,0.8) 0%,
+    rgba(40,15,0,0.8) 100%
+  );
+}
+
+.keuangan-item.saldo {
+  border-color: rgba(0,188,212,0.5);
+  background: linear-gradient(135deg,
+    rgba(0,40,50,0.8) 0%,
+    rgba(0,30,40,0.8) 100%
+  );
+}
+
+.keu-label {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.keu-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.keu-item.pengeluaran .keu-value {
+  color: var(--orange);
+}
+
+.keu-item.saldo .keu-value {
+  color: var(--teal2);
+}
+
+.keu-summary {
+  background: rgba(0,20,40,0.6);
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.4;
+  margin-top: 10px;
+}
+
+.keu-summary strong {
+  color: var(--gold2);
+}
+
+/* Detail Keuangan */
+.keu-detail-section {
+  margin-top: 12px;
+  background: rgba(0,15,30,0.5);
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.keu-detail-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.keu-detail-title.pemasukan {
+  color: var(--green2);
+}
+
+.keu-detail-title.pengeluaran {
+  color: var(--orange2);
+}
+
+.keu-detail-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.keu-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  margin-bottom: 0;
+  background: rgba(255,255,255,0.03);
+  border-radius: 5px;
+  border-left: 2px solid;
+  font-size: 0.75rem;
+}
+
+.keu-detail-item.pemasukan {
+  border-left-color: var(--green2);
+}
+
+.keu-detail-item.pengeluaran {
+  border-left-color: var(--orange2);
+}
+
+.keu-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.keu-detail-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.keu-detail-ket {
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
+}
+
+.keu-detail-tgl {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.4);
+}
+
+.keu-detail-amount {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.keu-detail-item.pemasukan .keu-detail-amount {
+  color: var(--green2);
+}
+
+.keu-detail-item.pengeluaran .keu-detail-amount {
+  color: var(--orange2);
+}
+
+/* QRIS Slide */
+.qris-slide {
+  text-align: center;
+}
+
+.qris-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  color: var(--gold2);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 0 20px rgba(212,168,75,0.5);
+}
+
+.qris-container {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  display: inline-block;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.qris-code {
+  width: 250px;
+  height: 250px;
+  object-fit: contain;
+}
+
+.qris-info {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.6;
+}
+
+.qris-info strong {
+  color: var(--green);
+  font-size: 1.2rem;
+}
+
+/* Slide indicators */
+.slide-indicators {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.slide-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.slide-indicator.active {
+  background: var(--green);
+  box-shadow: 0 0 10px var(--glow-green);
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ===== SHOLAT BOTTOM BAR (STATIC - NO ANIMATION) ===== */
+.sholat-bar {
+  position: relative; z-index: 20;
+  background: rgba(2, 10, 28, 0.96);
+  border-top: 1px solid rgba(0,188,212,0.2);
+  display: flex;
+  align-items: stretch;
+  min-height: 130px;
+  flex-shrink: 0;
+}
+
+/* Static top border */
+.sholat-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--teal2) 20%,
+    var(--gold) 50%,
+    var(--teal2) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 -1px 15px rgba(0,188,212,0.2);
+}
+
+.sholat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 10px;
+  position: relative;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.3s ease;
+}
+
+.sholat-item:last-child { border-right: none; }
+
+/* Static divider */
+.sholat-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 20%; bottom: 20%;
+  width: 1px;
+  background: rgba(0,188,212,0.2);
+}
+
+/* Static themed backgrounds */
+.sholat-item.imsak {
+  background: linear-gradient(180deg,
+    rgba(30,10,50,0.4) 0%,
+    rgba(20,5,30,0.3) 100%
+  );
+}
+
+.sholat-item.subuh {
+  background: linear-gradient(180deg,
+    rgba(10,30,60,0.4) 0%,
+    rgba(5,20,40,0.3) 100%
+  );
+}
+
+.sholat-item.syuruq {
+  background: linear-gradient(180deg,
+    rgba(40,25,10,0.4) 0%,
+    rgba(25,15,5,0.3) 100%
+  );
+}
+
+.sholat-item.dzuhur {
+  background: linear-gradient(180deg,
+    rgba(10,50,10,0.4) 0%,
+    rgba(5,30,5,0.3) 100%
+  );
+}
+
+.sholat-item.ashar {
+  background: linear-gradient(180deg,
+    rgba(50,35,10,0.4) 0%,
+    rgba(35,20,5,0.3) 100%
+  );
+}
+
+.sholat-item.maghrib {
+  background: linear-gradient(180deg,
+    rgba(50,20,10,0.4) 0%,
+    rgba(35,10,5,0.3) 100%
+  );
+}
+
+.sholat-item.isya {
+  background: linear-gradient(180deg,
+    rgba(20,15,50,0.4) 0%,
+    rgba(10,8,30,0.3) 100%
+  );
+}
+
+/* ACTIVE sholat - Static highlight */
+.sholat-item.aktif {
+  background: linear-gradient(180deg,
+    rgba(0,70,30,0.85) 0%,
+    rgba(0,50,15,0.9) 100%
+  ) !important;
+  border-top: 2px solid var(--green);
+  box-shadow:
+    inset 0 0 30px rgba(0,230,118,0.1),
+    0 -4px 20px rgba(0,230,118,0.15);
+  position: relative;
+  z-index: 10;
+}
+
+/* Static glow line for active */
+.sholat-item.aktif::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--glow-green);
+}
+
+/* PASSED sholat */
+.sholat-item.lewat {
+  opacity: 0.25;
+  filter: grayscale(40%);
+}
+
+/* Sholat icon - Static */
+.sholat-icon {
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 6px currentColor);
+  line-height: 1;
+}
+
+.sholat-item.aktif .sholat-icon {
+  font-size: 1.8rem;
+}
+
+.sholat-item.imsak .sholat-icon { color: #b39ddb; filter: drop-shadow(0 0 8px rgba(179,157,219,0.6)); }
+.sholat-item.subuh .sholat-icon { color: var(--teal2); filter: drop-shadow(0 0 8px rgba(0,229,255,0.6)); }
+.sholat-item.syuruq .sholat-icon { color: var(--amber); filter: drop-shadow(0 0 8px rgba(255,193,7,0.6)); }
+.sholat-item.dzuhur .sholat-icon { color: #ffe000; filter: drop-shadow(0 0 8px rgba(255,224,0,0.6)); }
+.sholat-item.ashar .sholat-icon { color: var(--amber); filter: drop-shadow(0 0 8px rgba(255,193,7,0.6)); }
+.sholat-item.maghrib .sholat-icon { color: var(--orange2); filter: drop-shadow(0 0 8px rgba(255,143,0,0.6)); }
+.sholat-item.isya .sholat-icon { color: #b39ddb; filter: drop-shadow(0 0 8px rgba(179,157,219,0.6)); }
+
+.sholat-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.sholat-item.aktif .sholat-name {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-shadow: 0 0 12px rgba(0,230,118,0.4);
+}
+
+.sholat-time {
+  font-family: 'Orbitron', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+  text-shadow: 0 0 15px rgba(255,255,255,0.25);
+  font-variant-numeric: tabular-nums;
+}
+
+.sholat-item.aktif .sholat-time {
+  color: var(--green);
+  font-size: 2.3rem;
+  text-shadow: 0 0 20px rgba(0,230,118,0.5);
+}
+
+/* Static dot for active */
+.active-dot {
+  display: none;
+  width: 8px; height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--glow-green);
+  margin-top: 6px;
+}
+
+.sholat-item.aktif .active-dot {
+  display: block;
+}
+
+/* ===== INFO TICKER BOTTOM ===== */
+.info-bar {
+  position: relative; z-index: 20;
+  background: rgba(0,5,20,0.97);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 10px 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.info-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,168,75,0.5), transparent);
+}
+
+.info-content {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
+}
+.info-label {
+  background: linear-gradient(90deg, var(--gold), var(--orange2));
+  color: #000;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 4px 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+.info-ticker {
+  flex: 1;
+  overflow: hidden;
+  height: 22px;
+  position: relative;
+}
+.info-ticker-inner {
+  display: inline-flex;
+  animation: tickAnim 55s linear infinite;
+  white-space: nowrap;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.info-ticker-inner span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  padding: 0 60px;
+}
+.info-ticker-inner .highlight { color: var(--gold2); }
+@keyframes tickAnim {
+  from { transform: translateX(100vw); }
+  to   { transform: translateX(-100%); }
+}
+
+/* Hari besar info */
+.haribesar-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 8px 40px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 1px;
+  background: rgba(0,5,20,0.5);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 20;
+}
+.hb-name { color: var(--gold2); font-weight: 700; }
+.hb-sep { color: rgba(255,255,255,0.2); }
+.hb-cd { font-family: 'Orbitron', monospace; font-size: 0.8rem; color: var(--gold3); }
+.hb-hijri { color: rgba(255,255,255,0.5); }
+.hb-masehi { color: rgba(255,255,255,0.5); }
+
+/* ===== CORNER DECORATIONS ===== */
+.corner {
+  position: absolute;
+  width: 40px; height: 40px;
+  z-index: 30;
+  pointer-events: none;
+}
+.corner-tl { top: 112px; left: 0; border-top: 2px solid var(--teal2); border-left: 2px solid var(--teal2); }
+.corner-tr { top: 112px; right: 0; border-top: 2px solid var(--teal2); border-right: 2px solid var(--teal2); }
+
+/* ===== SETTINGS BUTTON ===== */
+.settings-btn {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  width: 48px; height: 48px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  display: flex; align-items:center; justify-content:center;
+  cursor: pointer;
+  font-size: 1.3rem;
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  transition: all 0.2s;
+}
+.settings-btn:hover { background: rgba(255,255,255,0.15); transform: rotate(30deg); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed; inset:0; z-index:500;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
+  display: none; align-items:center; justify-content:center;
+}
+.modal-overlay.show { display:flex; }
+.modal-box {
+  background: linear-gradient(135deg, #0a1628, #061020);
+  border: 1px solid rgba(0,188,212,0.3);
+  border-radius: 20px;
+  padding: 32px;
+  width: 560px;
+  max-width: 92vw;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,188,212,0.1);
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;} }
+.modal-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--teal2);
+  margin-bottom: 24px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.mf { margin-bottom: 14px; }
+.mf label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.mf input, .mf select, .mf textarea {
+  width: 100%;
+  background: rgba(0,20,50,0.8);
+  border: 1px solid rgba(0,188,212,0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #fff;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.mf textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.mf input:focus, .mf select:focus, .mf textarea:focus { border-color: var(--teal2); }
+.mf select option { background: #0a1628; }
+.m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.m-actions { display:flex; gap:10px; margin-top:20px; }
+.btn-save {
+  flex:1; padding:12px;
+  background: linear-gradient(135deg, #006030, #009050);
+  color: #fff;
+  border: none; border-radius:10px;
+  font-family:'Exo 2',sans-serif; font-size:0.9rem; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+  letter-spacing:1px; text-transform:uppercase;
+}
+.btn-save:hover { box-shadow: 0 6px 20px rgba(0,144,80,0.4); }
+.btn-cancel {
+  padding:12px 20px;
+  background:rgba(255,255,255,0.06);
+  color:rgba(255,255,255,0.6);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;
+  font-family:'Exo 2',sans-serif; font-size:0.9rem;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-cancel:hover { background:rgba(255,255,255,0.1); color:#fff; }
+
+/* Login Modal */
+.login-modal {
+  text-align: center;
+}
+.login-modal .logo-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  display: block;
+}
+.login-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.2rem;
+  color: var(--gold2);
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+}
+.login-error {
+  color: #ff5252;
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+  display: none;
+}
+.login-error.show { display: block; }
+
+/* Admin Panel Tabs */
+.admin-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0,188,212,0.2);
+  padding-bottom: 15px;
+}
+.admin-tab {
+  padding: 8px 16px;
+  background: rgba(0,20,50,0.6);
+  border: 1px solid rgba(0,188,212,0.2);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.admin-tab:hover { background: rgba(0,20,50,0.8); }
+.admin-tab.active {
+  background: linear-gradient(135deg, rgba(0,80,140,0.6), rgba(0,60,100,0.6));
+  border-color: var(--teal2);
+  color: var(--teal2);
+}
+
+.admin-section {
+  display: none;
+}
+.admin-section.active {
+  display: block;
+}
+
+.section-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gold2);
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Keuangan Form */
+.keuangan-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+.keuangan-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+.keuangan-row input[type="text"] {
+  flex: 2;
+}
+.keuangan-row input[type="date"] {
+  flex: 0 0 140px;
+}
+.keuangan-row input[type="number"] {
+  flex: 1;
+}
+.keuangan-row .btn-remove {
+  padding: 8px 12px;
+  background: rgba(255,82,82,0.2);
+  border: 1px solid rgba(255,82,82,0.3);
+  border-radius: 6px;
+  color: #ff5252;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.keuangan-row .btn-remove:hover {
+  background: rgba(255,82,82,0.3);
+}
+
+.btn-add {
+  padding: 8px 16px;
+  background: rgba(0,230,118,0.2);
+  border: 1px solid rgba(0,230,118,0.3);
+  border-radius: 6px;
+  color: var(--green);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.btn-add:hover {
+  background: rgba(0,230,118,0.3);
+}
+
+/* ===== ENTRY ANIMS ===== */
+@keyframes fadeInDown { from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:translateY(0);} }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);} }
+.top-bar { animation: fadeInDown 0.7s ease both; }
+.sholat-bar { animation: fadeInUp 0.7s ease 0.2s both; }
+.info-bar { animation: fadeInUp 0.6s ease 0.4s both; }
+.middle-area { animation: fadeIn 0.9s ease 0.3s both; }
+@keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
+</style>
+</head>
+<body>
+
+<div class="screen">
+
+  <!-- BG -->
+  <div class="bg-layer">
+    <div class="bg-mosque" id="bg-mosque"></div>
+    <div class="bg-overlay"></div>
+    <div class="bg-scan"></div>
+    <div class="bg-grid"></div>
+  </div>
+  <div class="top-glow-bar"></div>
+
+  <!-- ===== TOP BAR ===== -->
+  <div class="top-bar">
+
+    <!-- Logo + Nama -->
+    <div class="top-left">
+      <div class="logo-box">
+        <span class="logo-icon">🕌</span>
+      </div>
+      <div class="masjid-info">
+        <div class="masjid-name">MASJID <span id="nama-masjid">AS-SAKINAH</span></div>
+        <div class="masjid-addr" id="alamat-masjid">Jl. Rimba Baru Bojong Menteng, Bogor, Jawa Barat</div>
+      </div>
+    </div>
+
+    <!-- Center (spacer + hijri besar) -->
+    <div class="top-center">
+      <div style="text-align:center;">
+        <div style="font-family:'Noto Kufi Arabic',sans-serif;font-size:1.4rem;color:rgba(212,168,75,0.8);text-shadow:0 0 20px rgba(212,168,75,0.4);">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      </div>
+    </div>
+
+    <!-- Jam Kanan -->
+    <div class="top-right">
+      <div class="clock-time" id="top-clock">--:--:--</div>
+      <div class="clock-hijri" id="hijri-text">— H</div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:3px;letter-spacing:0.5px;" id="masehi-text"></div>
+    </div>
+
+  </div>
+
+  <!-- Corner decorations -->
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+
+  <!-- ===== MIDDLE ===== -->
+  <div class="middle-area">
+
+    <!-- Countdown panel -->
+    <div class="countdown-panel" id="countdown-panel">
+      <div class="cd-sholat-name" id="cd-sholat-name">Menuju DZUHUR</div>
+      <div class="cd-timer" id="cd-timer">00:00:00</div>
+      <div class="cd-message" id="cd-message">Hitung mundur ke waktu sholat</div>
+    </div>
+
+    <!-- Slideshow Panel -->
+    <div class="slideshow-panel">
+      <div class="slide-content active" id="slide-hadits">
+        <div class="hadits-slide">
+          <div class="hadits-ar" id="hadits-ar">إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ</div>
+          <div class="hadits-id" id="hadits-id">"Sesungguhnya setiap amalan tergantung pada niatnya."</div>
+          <div class="hadits-source" id="hadits-source">- HR. Bukhari & Muslim</div>
+        </div>
+      </div>
+
+      <div class="slide-content" id="slide-keuangan">
+        <div class="keuangan-slide">
+          <div class="keuangan-title">💰 Laporan Keuangan Masjid</div>
+          <div class="keuangan-grid">
+            <div class="keuangan-item pemasukan">
+              <div class="keu-label">Pemasukan</div>
+              <div class="keu-value" id="keu-pemasukan">Rp 0</div>
+            </div>
+            <div class="keuangan-item pengeluaran">
+              <div class="keu-label">Pengeluaran</div>
+              <div class="keu-value" id="keu-pengeluaran">Rp 0</div>
+            </div>
+            <div class="keuangan-item saldo">
+              <div class="keu-label">Saldo</div>
+              <div class="keu-value" id="keu-saldo">Rp 0</div>
+            </div>
+          </div>
+
+          <!-- Detail Pemasukan -->
+          <div class="keu-detail-section">
+            <div class="keu-detail-title pemasukan">📥 Rincian Pemasukan</div>
+            <div class="keu-detail-list" id="keu-pemasukan-list"></div>
+          </div>
+
+          <!-- Detail Pengeluaran -->
+          <div class="keu-detail-section">
+            <div class="keu-detail-title pengeluaran">📤 Rincian Pengeluaran</div>
+            <div class="keu-detail-list" id="keu-pengeluaran-list"></div>
+          </div>
+
+          <div class="keu-summary" id="keu-summary">
+            <strong>Update Terakhir:</strong> <span id="keu-update">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-content" id="slide-qris">
+        <div class="qris-slide">
+          <div class="qris-title">📱 Scan QRIS untuk Donasi</div>
+          <div class="qris-container">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=00020101021226580016ID.CO.QRIS.WWW01189360052002000000000303UMI51440014ID.CO.QRIS.WWW0215ID10200200000000303UMI5204581253033605802ID5910MasjidAs-Sakinah6007Jakarta610510110620407036304FFFF" alt="QRIS Code" class="qris-code" id="qris-image">
+          </div>
+          <div class="qris-info">
+            Scan kode QRIS di atas untuk donasi ke <strong>Masjid As-Sakinah</strong><br>
+            Melalui aplikasi pembayaran favorit Anda
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-indicators" id="slide-indicators">
+        <div class="slide-indicator active" data-slide="0"></div>
+        <div class="slide-indicator" data-slide="1"></div>
+        <div class="slide-indicator" data-slide="2"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== HARI BESAR BAR ===== -->
+  <div class="haribesar-bar">
+    <span class="hb-name" id="hb-name">Hari Raya 'Idul Fitri 1447 H</span>
+    <span class="hb-sep">:</span>
+    <span class="hb-cd" id="hb-cd">-- Hari -- Jam --:--:--</span>
+    <span class="hb-sep">|</span>
+    <span class="hb-hijri" id="hb-hijri">1 Syawal 1447 H</span>
+    <span class="hb-sep">|</span>
+    <span class="hb-masehi" id="hb-masehi">30 Maret 2026</span>
+  </div>
+
+  <!-- ===== SHOLAT BAR (STATIC - NO ANIMATION - 6 TIMES) ===== -->
+  <div class="sholat-bar" id="sholat-bar">
+    <!-- Generated by JS -->
+  </div>
+
+  <!-- ===== INFO TICKER ===== -->
+  <div class="info-bar">
+    <div class="info-content">
+      <div class="info-label">INFO</div>
+      <div class="info-ticker">
+        <div class="info-ticker-inner" id="ticker">
+          <span>
+            🕌 <span class="highlight">Masjid As-Sakinah</span> — Selamat Datang &nbsp;|&nbsp;
+            📢 Kajian Ahad pagi pukul 07.00 WIB bersama Ust. Ahmad Faiz, Lc. &nbsp;|&nbsp;
+            💚 Donasi renovasi masjid masih dibuka — Jazakumullahu khairan &nbsp;|&nbsp;
+            📖 TPQ As-Sakinah menerima santri baru usia 5–15 tahun &nbsp;|&nbsp;
+            ☪️ Mari memakmurkan masjid dengan sholat berjamaah &nbsp;|&nbsp;
+            🌙 <span class="highlight">Ramadan 1447 H</span> — Segera hadir
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Settings button -->
+<div class="settings-btn" onclick="openLoginModal()" title="Menu Admin">⚙️</div>
+
+<!-- ===== LOGIN MODAL ===== -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal-box login-modal">
+    <span class="logo-icon">🕌</span>
+    <div class="login-title">MENU ADMIN</div>
+    <div class="login-error" id="login-error">Username atau password salah!</div>
+    <div class="mf">
+      <label>Username</label>
+      <input type="text" id="login-username" placeholder="Masukkan username">
+    </div>
+    <div class="mf">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="Masukkan password">
+    </div>
+    <div class="m-actions">
+      <button class="btn-cancel" onclick="closeLoginModal()">Batal</button>
+      <button class="btn-save" onclick="doLogin()">🔓 Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN MODAL ===== -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal-box" style="width: 750px;">
+    <div class="modal-title">⚙️ Panel Admin Masjid As-Sakinah</div>
+
+    <div class="admin-tabs">
+      <div class="admin-tab active" data-tab="umum">Umum</div>
+      <div class="admin-tab" data-tab="jadwal">Jadwal</div>
+      <div class="admin-tab" data-tab="keuangan">Keuangan</div>
+      <div class="admin-tab" data-tab="hadits">Hadits</div>
+      <div class="admin-tab" data-tab="qris">QRIS</div>
+      <div class="admin-tab" data-tab="akun">Akun</div>
+    </div>
+
+    <!-- Umum Section -->
+    <div class="admin-section active" id="section-umum">
+      <div class="mf"><label>Nama Masjid</label><input type="text" id="s-nama" value="AS-SAKINAH"></div>
+      <div class="mf"><label>Alamat</label><input type="text" id="s-alamat" value="Jl. Raya As-Sakinah No. 5, Bekasi, Jawa Barat"></div>
+      <div class="mf"><label>URL Background (Foto Masjid)</label><input type="text" id="s-bg" placeholder="https://... biarkan kosong = default"></div>
+      <div class="mf"><label>Teks Ticker / Running Text</label><textarea id="s-ticker" rows="3">🕌 Masjid As-Sakinah · Kajian Ahad 07.00 WIB · Donasi renovasi masjid masih dibuka · TPQ menerima santri baru · Mari memakmurkan masjid dengan sholat berjamaah</textarea></div>
+      <div class="mf"><label>Nama Hari Besar</label><input type="text" id="s-haribesar" value="Hari Raya 'Idul Fitri 1447 H"></div>
+      <div class="m-grid">
+        <div class="mf"><label>Tanggal Hijri Hari Besar</label><input type="text" id="s-hb-hijri" value="1 Syawal 1447 H"></div>
+        <div class="mf"><label>Tanggal Masehi Hari Besar</label><input type="date" id="s-hb-tgl" value="2026-03-30"></div>
+      </div>
+    </div>
+
+    <!-- Jadwal Section -->
+    <div class="admin-section" id="section-jadwal">
+      <div class="mf">
+        <label>Pilih Kota (API Kemenag)</label>
+        <select id="s-kota" onchange="fetchJadwalAuto()">
+          <option value="3171">Jakarta Pusat</option>
+          <option value="3172">Jakarta Utara</option>
+          <option value="3174">Jakarta Selatan</option>
+          <option value="3175">Jakarta Timur</option>
+          <option value="3201">Kab. Bogor</option>
+          <option value="3271">Kota Bogor</option>
+          <option value="3273">Kota Bandung</option>
+          <option value="3578">Kota Surabaya</option>
+          <option value="3374">Kota Semarang</option>
+          <option value="3471">Kota Yogyakarta</option>
+          <option value="1871">Kota Medan</option>
+          <option value="7371">Kota Makassar</option>
+          <option value="6371">Kota Banjarmasin</option>
+          <option value="8171">Kota Mataram</option>
+        </select>
+      </div>
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Jadwal Manual (override)</div>
+      <div class="m-grid">
+        <div class="mf"><label>Imsak</label><input type="time" id="t-imsak" value="04:16"></div>
+        <div class="mf"><label>Subuh</label><input type="time" id="t-subuh" value="04:26"></div>
+        <div class="mf"><label>Syuruq/Terbit</label><input type="time" id="t-terbit" value="05:46"></div>
+        <div class="mf"><label>Dzuhur</label><input type="time" id="t-dzuhur" value="12:04"></div>
+        <div class="mf"><label>Ashar</label><input type="time" id="t-ashar" value="15:15"></div>
+        <div class="mf"><label>Maghrib</label><input type="time" id="t-maghrib" value="18:02"></div>
+        <div class="mf"><label>Isya'</label><input type="time" id="t-isya" value="19:12"></div>
+      </div>
+      <div class="m-grid">
+        <div class="mf"><label>Interval Slideshow (detik)</label><input type="number" id="s-slide-interval" value="10" min="5" max="60"></div>
+        <div class="mf"><label>Waktu Iqomah (menit)</label><input type="number" id="s-iqomah" value="10" min="5" max="15"></div>
+      </div>
+    </div>
+
+    <!-- Keuangan Section -->
+    <div class="admin-section" id="section-keuangan">
+      <div class="section-title">💰 Pemasukan</div>
+      <div class="keuangan-list" id="pemasukan-list"></div>
+      <button class="btn-add" onclick="addKeuanganItem('pemasukan')">+ Tambah Pemasukan</button>
+
+      <div class="section-title" style="margin-top: 20px;">📤 Pengeluaran</div>
+      <div class="keuangan-list" id="pengeluaran-list"></div>
+      <button class="btn-add" onclick="addKeuanganItem('pengeluaran')">+ Tambah Pengeluaran</button>
+    </div>
+
+    <!-- Hadits Section -->
+    <div class="admin-section" id="section-hadits">
+      <div class="section-title">📜 Daftar Hadits</div>
+      <div id="hadits-list"></div>
+      <button class="btn-add" onclick="addHaditsItem()">+ Tambah Hadits</button>
+    </div>
+
+    <!-- QRIS Section -->
+    <div class="admin-section" id="section-qris">
+      <div class="mf"><label>URL Gambar QRIS</label><input type="text" id="s-qris-url" placeholder="https://... atau biarkan kosong untuk default"></div>
+      <div class="mf"><label>Nama/Nomor Rekening</label><input type="text" id="s-qris-info" value="Masjid As-Sakinah"></div>
+      <div class="mf">
+        <label>Preview QRIS (Default)</label>
+        <div style="background: white; padding: 10px; display: inline-block; border-radius: 10px;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=00020101021226580016ID.CO.QRIS.WWW01189360052002000000000303UMI51440014ID.CO.QRIS.WWW0215ID10200200000000303UMI5204581253033605802ID5910MasjidAs-Sakinah6007Jakarta610510110620407036304FFFF" alt="QRIS Preview" style="width: 150px; height: 150px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Akun Section -->
+    <div class="admin-section" id="section-akun">
+      <div class="section-title">🔐 Ganti Password</div>
+      <div class="mf"><label>Username Saat Ini</label><input type="text" id="s-username" value="admin"></div>
+      <div class="mf"><label>Password Baru</label><input type="password" id="s-new-password" placeholder="Biarkan kosong jika tidak diubah"></div>
+      <div class="mf"><label>Konfirmasi Password Baru</label><input type="password" id="s-confirm-password" placeholder="Ulangi password baru"></div>
+    </div>
+
+    <div class="m-actions">
+      <button class="btn-cancel" onclick="closeAdminModal()">Batal</button>
+      <button class="btn-save" onclick="saveAdminSettings()">💾 Simpan Semua</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+let cfg = {
+  nama: 'AS-SAKINAH',
+  alamat: 'Jl. Raya As-Sakinah No. 5, Bekasi, Jawa Barat',
+  bg: '',
+  kota: '3271',
+  haribesar: "Hari Raya 'Idul Fitri 1447 H",
+  hbHijri: '1 Syawal 1447 H',
+  hbTgl: '2026-03-30',
+  ticker: "🕌 Masjid As-Sakinah · Kajian Ahad 07.00 WIB · Donasi renovasi masjid masih dibuka · TPQ menerima santri baru · Mari memakmurkan masjid",
+  sholat: { imsak:'04:16', subuh:'04:26', syuruq:'05:46', terbit:'05:46', dzuhur:'12:04', ashar:'15:15', maghrib:'18:02', isya:'19:12' },
+  slideInterval: 10,
+  iqomahTime: 10,
+  qrisUrl: '',
+  qrisInfo: 'Masjid As-Sakinah',
+  pemasukan: [
+    { id: 1, keterangan: 'Infaq Jumat', jumlah: 5000000, tanggal: '2026-03-10' },
+    { id: 2, keterangan: 'Donasi Renovasi', jumlah: 15000000, tanggal: '2026-03-08' },
+    { id: 3, keterangan: 'Sedekah Kotak Amal', jumlah: 2500000, tanggal: '2026-03-07' }
+  ],
+  pengeluaran: [
+    { id: 1, keterangan: 'Listrik & Air', jumlah: 2000000, tanggal: '2026-03-01' },
+    { id: 2, keterangan: 'Kebersihan', jumlah: 800000, tanggal: '2026-03-05' }
+  ],
+  hadits: [
+    { id: 1, arab: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ', indonesia: '"Sesungguhnya setiap amalan tergantung pada niatnya."', source: 'HR. Bukhari & Muslim' },
+    { id: 2, arab: 'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', indonesia: '"Sebaik-baik kalian adalah orang yang belajar Al-Qur\'an dan mengajarkannya."', source: 'HR. Bukhari' },
+    { id: 3, arab: 'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ', indonesia: '"Muslim adalah orang yang kaum Muslimin selamat dari lidah dan tangannya."', source: 'HR. Bukhari & Muslim' },
+    { id: 4, arab: 'تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ صَدَقَةٌ', indonesia: '"Senyumanmu di hadapan saudaramu adalah sedekah."', source: 'HR. Tirmidzi' },
+    { id: 5, arab: 'الطَّهُورُ شَطْرُ الإِيمَانِ', indonesia: '"Bersih itu separuh dari iman."', source: 'HR. Muslim' }
+  ],
+  username: 'admin',
+  password: 'admin123'
+};
+
+try {
+  const saved = localStorage.getItem('assakinah-tv-cfg');
+  if (saved) cfg = { ...cfg, ...JSON.parse(saved) };
+} catch(e) {}
+
+let isAdminLoggedIn = false;
+
+function pad(n) { return String(n).padStart(2,'0'); }
+function t2m(t) { const [h,m]=t.split(':').map(Number); return h*60+m; }
+function formatRupiah(num) {
+  return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function tickClock() {
+  const now = new Date();
+  document.getElementById('top-clock').textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  const days = ['Ahad','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  document.getElementById('masehi-text').textContent =
+    `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+  try {
+    const hijri = new Intl.DateTimeFormat('id-ID-u-ca-islamic',{day:'numeric',month:'long',year:'numeric'}).format(now);
+    document.getElementById('hijri-text').textContent = hijri + ' H';
+  } catch(e) {}
+}
+
+// ============================================================
+// HARI BESAR COUNTDOWN
+// ============================================================
+function tickHaribesar() {
+  const target = new Date(cfg.hbTgl + 'T00:00:00');
+  const now = new Date();
+  const diff = target - now;
+  if (diff <= 0) {
+    document.getElementById('hb-cd').textContent = '🎉 Hari ini!';
+    return;
+  }
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  document.getElementById('hb-cd').textContent =
+    `${days} Hari ${pad(hours)} Jam ${pad(mins)}:${pad(secs)}`;
+}
+
+// ============================================================
+// SHOLAT & COUNTDOWN
+// ============================================================
+let countdownTarget = null;
+let isSholatTime = false;
+let iqomahCountdown = null;
+
+function checkSholatTime() {
+  const now = new Date();
+  const curMin = now.getHours()*60 + now.getMinutes();
+
+  const items = [
+    { key:'subuh',   cls:'subuh',   icon:'🌙', label:'SUBUH',   waktu: cfg.sholat.subuh   },
+    { key:'dzuhur',  cls:'dzuhur',  icon:'☀️', label:'DZHUHUR', waktu: cfg.sholat.dzuhur  },
+    { key:'ashar',   cls:'ashar',   icon:'🌤️', label:"'ASHAR",  waktu: cfg.sholat.ashar   },
+    { key:'maghrib', cls:'maghrib', icon:'🌅', label:'MAGHRIB', waktu: cfg.sholat.maghrib },
+    { key:'isya',    cls:'isya',    icon:'🌙', label:"ISYA'",   waktu: cfg.sholat.isya    },
+  ];
+
+  // Check if we're in sholat time (within iqomahTime minutes after sholat time)
+  for (let item of items) {
+    const [h,m] = item.waktu.split(':').map(Number);
+    const sholatMin = h*60+m;
+    const diff = curMin - sholatMin;
+
+    if (diff >= 0 && diff < cfg.iqomahTime) {
+      // Sholat time! Show iqomah countdown
+      isSholatTime = true;
+      iqomahCountdown = {
+        name: item.label,
+        endMin: sholatMin + cfg.iqomahTime
+      };
+      updateCountdownForSholatTime();
+      renderSholatBar();
+      return;
+    }
+  }
+
+  // Not in sholat time, find next sholat
+  isSholatTime = false;
+  iqomahCountdown = null;
+
+  let activeIdx = -1;
+  for (let i=0; i<items.length; i++) {
+    const [h,m] = items[i].waktu.split(':').map(Number);
+    if (curMin <= h*60+m) { activeIdx = i; break; }
+  }
+  if (activeIdx === -1) activeIdx = 0;
+
+  countdownTarget = items[activeIdx];
+  updateCountdownNormal();
+  renderSholatBar();
+}
+
+function updateCountdownNormal() {
+  const panel = document.getElementById('countdown-panel');
+  panel.classList.remove('sholat-time');
+
+  // Hapus mode fullscreen
+  document.querySelector('.screen').classList.remove('iqomah-mode');
+
+  const nameEl = document.getElementById('cd-sholat-name');
+  const timerEl = document.getElementById('cd-timer');
+  const msgEl = document.getElementById('cd-message');
+
+  nameEl.textContent = `Menuju ${countdownTarget.label}`;
+  msgEl.textContent = 'Hitung mundur ke waktu sholat';
+
+  const now = new Date();
+  const [th,tm] = countdownTarget.waktu.split(':').map(Number);
+  const tgtSec = th*3600+tm*60;
+  const nowSec = now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+  let diff = tgtSec - nowSec;
+  if (diff < 0) diff += 86400;
+  const hh=Math.floor(diff/3600), mm=Math.floor((diff%3600)/60), ss=diff%60;
+  timerEl.textContent = `${pad(hh)}:${pad(mm)}:${pad(ss)}`;
+}
+
+function updateCountdownForSholatTime() {
+  const panel = document.getElementById('countdown-panel');
+  panel.classList.add('sholat-time');
+
+  // Tambahkan mode fullscreen
+  document.querySelector('.screen').classList.add('iqomah-mode');
+
+  const nameEl = document.getElementById('cd-sholat-name');
+  const timerEl = document.getElementById('cd-timer');
+  const msgEl = document.getElementById('cd-message');
+
+  nameEl.textContent = `WAKTU ${iqomahCountdown.name} TIBA!`;
+
+  const now = new Date();
+  const curSec = now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+  const endSec = iqomahCountdown.endMin*60;
+
+  let diff = endSec - curSec;
+  if (diff < 0) diff = 0;
+
+  const mm = Math.floor(diff / 60);
+  const ss = diff % 60;
+
+  timerEl.textContent = `${pad(mm)}:${pad(ss)}`;
+  msgEl.textContent = `Menuju iqomah (${cfg.iqomahTime} menit)`;
+
+  // Jika waktu iqomah habis, keluar dari mode fullscreen
+  if (diff === 0) {
+    setTimeout(() => {
+      document.querySelector('.screen').classList.remove('iqomah-mode');
+      panel.classList.remove('sholat-time');
+      // Refresh countdown ke sholat berikutnya
+      checkSholatTime();
+    }, 1000);
+  }
+}
+
+function tickCountdown() {
+  if (isSholatTime && iqomahCountdown) {
+    updateCountdownForSholatTime();
+  } else if (countdownTarget) {
+    updateCountdownNormal();
+  }
+}
+
+// ============================================================
+// RENDER SHOLAT BAR (STATIC - NO ANIMATION - WITH SYURUQ)
+// ============================================================
+function renderSholatBar() {
+  const s = cfg.sholat;
+  const now = new Date();
+  const curMin = now.getHours()*60 + now.getMinutes();
+
+  const items = [
+    { key:'imsak',   cls:'imsak',   icon:'🌙', label:'IMSAK',   waktu: s.imsak   },
+    { key:'subuh',   cls:'subuh',   icon:'🌙', label:'SUBUH',   waktu: s.subuh   },
+    { key:'syuruq',  cls:'syuruq',  icon:'🌅', label:'SYURUQ',  waktu: s.syuruq  },
+    { key:'dzuhur',  cls:'dzuhur',  icon:'☀️', label:'DZHUHUR', waktu: s.dzuhur  },
+    { key:'ashar',   cls:'ashar',   icon:'🌤️', label:"'ASHAR",  waktu: s.ashar   },
+    { key:'maghrib', cls:'maghrib', icon:'🌅', label:'MAGHRIB', waktu: s.maghrib },
+    { key:'isya',    cls:'isya',    icon:'🌙', label:"ISYA'",   waktu: s.isya    },
+  ];
+
+  // Find active (next berjamaah)
+  let activeIdx = -1;
+  for (let i=0; i<items.length; i++) {
+    const [h,m] = items[i].waktu.split(':').map(Number);
+    if (curMin <= h*60+m) { activeIdx = i; break; }
+  }
+  if (activeIdx === -1) activeIdx = 0;
+
+  const bar = document.getElementById('sholat-bar');
+  bar.innerHTML = items.map((item, i) => {
+    const [h,m] = item.waktu.split(':').map(Number);
+    const isPassed = curMin > h*60+m+15;
+    const isActive = i === activeIdx;
+    return `<div class="sholat-item ${item.cls}${isActive?' aktif':''}${isPassed&&!isActive?' lewat':''}">
+      <div class="sholat-icon">${item.icon}</div>
+      <div class="sholat-name">${item.label}</div>
+      <div class="sholat-time">${item.waktu}</div>
+      <div class="active-dot"></div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// MIDDLE SLIDESHOW (NO JADWAL SLIDE)
+// ============================================================
+let currentSlide = 0;
+const slides = ['slide-hadits', 'slide-keuangan', 'slide-qris'];
+let slideInterval = null;
+
+function showSlide(index) {
+  const slideContents = document.querySelectorAll('.slide-content');
+  const indicators = document.querySelectorAll('.slide-indicator');
+
+  slideContents.forEach((slide, i) => {
+    slide.classList.remove('active');
+    indicators[i].classList.remove('active');
+  });
+
+  slideContents[index].classList.add('active');
+  indicators[index].classList.add('active');
+  currentSlide = index;
+}
+
+function nextSlide() {
+  const next = (currentSlide + 1) % slides.length;
+  showSlide(next);
+}
+
+function startSlideshow() {
+  if (slideInterval) clearInterval(slideInterval);
+  slideInterval = setInterval(nextSlide, cfg.slideInterval * 1000);
+}
+
+function initSlideshow() {
+  const indicators = document.querySelectorAll('.slide-indicator');
+  indicators.forEach((indicator, index) => {
+    indicator.addEventListener('click', () => {
+      showSlide(index);
+      startSlideshow();
+    });
+  });
+  startSlideshow();
+}
+
+// ============================================================
+// HADITS CAROUSEL
+// ============================================================
+let haditsIdx = 0;
+
+function rotateHadits() {
+  if (cfg.hadits.length === 0) return;
+  haditsIdx = (haditsIdx + 1) % cfg.hadits.length;
+  const hadits = cfg.hadits[haditsIdx];
+
+  const arEl = document.getElementById('hadits-ar');
+  const idEl = document.getElementById('hadits-id');
+  const sourceEl = document.getElementById('hadits-source');
+
+  if (arEl) arEl.style.opacity = '0';
+  if (idEl) idEl.style.opacity = '0';
+  if (sourceEl) sourceEl.style.opacity = '0';
+
+  setTimeout(() => {
+    if (arEl) {
+      arEl.textContent = hadits.arab;
+      arEl.style.opacity = '1';
+    }
+    if (idEl) {
+      idEl.textContent = hadits.indonesia;
+      idEl.style.opacity = '1';
+    }
+    if (sourceEl) {
+      sourceEl.textContent = '- ' + hadits.source;
+      sourceEl.style.opacity = '1';
+    }
+  }, 800);
+}
+
+// ============================================================
+// LAPORAN KEUANGAN
+// ============================================================
+function updateKeuangan() {
+  const totalPemasukan = cfg.pemasukan.reduce((sum, item) => sum + item.jumlah, 0);
+  const totalPengeluaran = cfg.pengeluaran.reduce((sum, item) => sum + item.jumlah, 0);
+  const saldo = totalPemasukan - totalPengeluaran;
+
+  const pemasukanEl = document.getElementById('keu-pemasukan');
+  const pengeluaranEl = document.getElementById('keu-pengeluaran');
+  const saldoEl = document.getElementById('keu-saldo');
+  const updateEl = document.getElementById('keu-update');
+  const pemasukanListEl = document.getElementById('keu-pemasukan-list');
+  const pengeluaranListEl = document.getElementById('keu-pengeluaran-list');
+
+  if (pemasukanEl) pemasukanEl.textContent = formatRupiah(totalPemasukan);
+  if (pengeluaranEl) pengeluaranEl.textContent = formatRupiah(totalPengeluaran);
+  if (saldoEl) saldoEl.textContent = formatRupiah(saldo);
+  if (updateEl) updateEl.textContent = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Render detail pemasukan
+  if (pemasukanListEl) {
+    if (cfg.pemasukan.length === 0) {
+      pemasukanListEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:20px;">Belum ada data pemasukan</div>';
+    } else {
+      pemasukanListEl.innerHTML = cfg.pemasukan.map(item => `
+        <div class="keu-detail-item pemasukan">
+          <div class="keu-detail-info">
+            <div class="keu-detail-ket">${item.keterangan}</div>
+            <div class="keu-detail-tgl">${item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '-'}</div>
+          </div>
+          <div class="keu-detail-amount">${formatRupiah(item.jumlah)}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Render detail pengeluaran
+  if (pengeluaranListEl) {
+    if (cfg.pengeluaran.length === 0) {
+      pengeluaranListEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:20px;">Belum ada data pengeluaran</div>';
+    } else {
+      pengeluaranListEl.innerHTML = cfg.pengeluaran.map(item => `
+        <div class="keu-detail-item pengeluaran">
+          <div class="keu-detail-info">
+            <div class="keu-detail-ket">${item.keterangan}</div>
+            <div class="keu-detail-tgl">${item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '-'}</div>
+          </div>
+          <div class="keu-detail-amount">${formatRupiah(item.jumlah)}</div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+// ============================================================
+// QRIS
+// ============================================================
+function updateQRIS() {
+  const qrisImg = document.getElementById('qris-image');
+  if (qrisImg && cfg.qrisUrl) {
+    qrisImg.src = cfg.qrisUrl;
+  }
+}
+
+// ============================================================
+// FETCH API KEMENAG
+// ============================================================
+async function fetchJadwalAuto() {
+  const kota = document.getElementById('s-kota') ? document.getElementById('s-kota').value : cfg.kota;
+  const now = new Date();
+  const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+  try {
+    const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/${kota}/${y}/${m}/${d}`);
+    const json = await res.json();
+    if (json.status && json.data && json.data.jadwal) {
+      const j = json.data.jadwal;
+      cfg.sholat = {
+        imsak: j.imsak || cfg.sholat.imsak,
+        subuh: j.subuh || cfg.sholat.subuh,
+        syuruq: j.terbit || cfg.sholat.syuruq,
+        terbit: j.terbit || cfg.sholat.terbit,
+        dzuhur: j.dzuhur || cfg.sholat.dzuhur,
+        ashar: j.ashar || cfg.sholat.ashar,
+        maghrib: j.maghrib || cfg.sholat.maghrib,
+        isya: j.isya || cfg.sholat.isya,
+      };
+      ['imsak','subuh','terbit','dzuhur','ashar','maghrib','isya'].forEach(k => {
+        const el = document.getElementById('t-'+k);
+        if (el && cfg.sholat[k]) el.value = cfg.sholat[k];
+      });
+      // Also update syuruq field
+      const syuruqEl = document.getElementById('t-terbit');
+      if (syuruqEl && cfg.sholat.syuruq) syuruqEl.value = cfg.sholat.syuruq;
+      renderSholatBar();
+    }
+  } catch(e) {
+    console.log('API fetch failed, using manual data');
+  }
+}
+
+// ============================================================
+// APPLY CONFIG
+// ============================================================
+function applyConfig() {
+  document.getElementById('nama-masjid').textContent = cfg.nama.toUpperCase();
+  document.getElementById('alamat-masjid').textContent = cfg.alamat;
+  document.getElementById('hb-name').textContent = cfg.haribesar;
+  document.getElementById('hb-hijri').textContent = cfg.hbHijri;
+  document.getElementById('hb-masehi').textContent = new Date(cfg.hbTgl).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  if (cfg.bg) document.getElementById('bg-mosque').style.backgroundImage = `url('${cfg.bg}')`;
+  const tk = document.getElementById('ticker');
+  if (tk) {
+    // Hanya update jika konten berubah agar animasi tidak ter-reset
+    const currentContent = tk.querySelector('span');
+    if (!currentContent || currentContent.innerHTML !== cfg.ticker) {
+      tk.innerHTML = `<span>${cfg.ticker}</span>`;
+    }
+  }
+  renderSholatBar();
+  updateKeuangan();
+  updateQRIS();
+}
+
+// ============================================================
+// LOGIN MODAL
+// ============================================================
+function openLoginModal() {
+  if (isAdminLoggedIn) {
+    openAdminModal();
+  } else {
+    document.getElementById('login-modal').classList.add('show');
+    document.getElementById('login-username').focus();
+  }
+}
+
+function closeLoginModal() {
+  document.getElementById('login-modal').classList.remove('show');
+  document.getElementById('login-error').classList.remove('show');
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+}
+
+function doLogin() {
+  const username = document.getElementById('login-username').value;
+  const password = document.getElementById('login-password').value;
+
+  if (username === cfg.username && password === cfg.password) {
+    isAdminLoggedIn = true;
+    closeLoginModal();
+    openAdminModal();
+  } else {
+    document.getElementById('login-error').classList.add('show');
+  }
+}
+
+// ============================================================
+// ADMIN MODAL
+// ============================================================
+function openAdminModal() {
+  loadAdminData();
+  document.getElementById('admin-modal').classList.add('show');
+}
+
+function closeAdminModal() {
+  document.getElementById('admin-modal').classList.remove('show');
+}
+
+function loadAdminData() {
+  document.getElementById('s-nama').value = cfg.nama;
+  document.getElementById('s-alamat').value = cfg.alamat;
+  document.getElementById('s-bg').value = cfg.bg;
+  document.getElementById('s-ticker').value = cfg.ticker;
+  document.getElementById('s-haribesar').value = cfg.haribesar;
+  document.getElementById('s-hb-hijri').value = cfg.hbHijri;
+  document.getElementById('s-hb-tgl').value = cfg.hbTgl;
+
+  document.getElementById('s-kota').value = cfg.kota;
+  document.getElementById('s-slide-interval').value = cfg.slideInterval;
+  document.getElementById('s-iqomah').value = cfg.iqomahTime;
+  const s = cfg.sholat;
+  document.getElementById('t-imsak').value = s.imsak;
+  document.getElementById('t-subuh').value = s.subuh;
+  document.getElementById('t-terbit').value = s.syuruq || s.terbit;
+  document.getElementById('t-dzuhur').value = s.dzuhur;
+  document.getElementById('t-ashar').value = s.ashar;
+  document.getElementById('t-maghrib').value = s.maghrib;
+  document.getElementById('t-isya').value = s.isya;
+
+  document.getElementById('s-qris-url').value = cfg.qrisUrl;
+  document.getElementById('s-qris-info').value = cfg.qrisInfo;
+
+  document.getElementById('s-username').value = cfg.username;
+
+  loadKeuanganLists();
+  loadHaditsList();
+}
+
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    const targetTab = this.dataset.tab;
+
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+
+    document.querySelectorAll('.admin-section').forEach(section => {
+      section.classList.remove('active');
+    });
+    document.getElementById('section-' + targetTab).classList.add('active');
+  });
+});
+
+function loadKeuanganLists() {
+  const pemasukanList = document.getElementById('pemasukan-list');
+  const pengeluaranList = document.getElementById('pengeluaran-list');
+
+  if (pemasukanList) {
+    pemasukanList.innerHTML = cfg.pemasukan.map((item, index) => `
+      <div class="keuangan-row">
+        <input type="date" value="${item.tanggal || ''}" onchange="updateKeuanganItem('pemasukan', ${index}, 'tanggal', this.value)">
+        <input type="text" value="${item.keterangan}" onchange="updateKeuanganItem('pemasukan', ${index}, 'keterangan', this.value)">
+        <input type="number" value="${item.jumlah}" onchange="updateKeuanganItem('pemasukan', ${index}, 'jumlah', parseInt(this.value))">
+        <button class="btn-remove" onclick="removeKeuanganItem('pemasukan', ${index})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  if (pengeluaranList) {
+    pengeluaranList.innerHTML = cfg.pengeluaran.map((item, index) => `
+      <div class="keuangan-row">
+        <input type="date" value="${item.tanggal || ''}" onchange="updateKeuanganItem('pengeluaran', ${index}, 'tanggal', this.value)">
+        <input type="text" value="${item.keterangan}" onchange="updateKeuanganItem('pengeluaran', ${index}, 'keterangan', this.value)">
+        <input type="number" value="${item.jumlah}" onchange="updateKeuanganItem('pengeluaran', ${index}, 'jumlah', parseInt(this.value))">
+        <button class="btn-remove" onclick="removeKeuanganItem('pengeluaran', ${index})">✕</button>
+      </div>
+    `).join('');
+  }
+}
+
+function addKeuanganItem(type) {
+  const today = new Date().toISOString().split('T')[0];
+  const newItem = {
+    id: Date.now(),
+    keterangan: 'Keterangan baru',
+    jumlah: 0,
+    tanggal: today
+  };
+
+  if (type === 'pemasukan') {
+    cfg.pemasukan.push(newItem);
+  } else {
+    cfg.pengeluaran.push(newItem);
+  }
+
+  loadKeuanganLists();
+}
+
+function updateKeuanganItem(type, index, field, value) {
+  if (type === 'pemasukan') {
+    cfg.pemasukan[index][field] = value;
+  } else {
+    cfg.pengeluaran[index][field] = value;
+  }
+}
+
+function removeKeuanganItem(type, index) {
+  if (type === 'pemasukan') {
+    cfg.pemasukan.splice(index, 1);
+  } else {
+    cfg.pengeluaran.splice(index, 1);
+  }
+  loadKeuanganLists();
+}
+
+function loadHaditsList() {
+  const haditsList = document.getElementById('hadits-list');
+  if (haditsList) {
+    haditsList.innerHTML = cfg.hadits.map((item, index) => `
+      <div style="background: rgba(0,20,50,0.6); border: 1px solid rgba(0,188,212,0.2); border-radius: 10px; padding: 15px; margin-bottom: 10px;">
+        <div class="mf">
+          <label>Teks Arab</label>
+          <input type="text" value="${item.arab}" onchange="updateHaditsItem(${index}, 'arab', this.value)">
+        </div>
+        <div class="mf">
+          <label>Terjemahan Indonesia</label>
+          <input type="text" value="${item.indonesia}" onchange="updateHaditsItem(${index}, 'indonesia', this.value)">
+        </div>
+        <div class="mf">
+          <label>Sumber</label>
+          <input type="text" value="${item.source}" onchange="updateHaditsItem(${index}, 'source', this.value)">
+        </div>
+        <button class="btn-remove" onclick="removeHaditsItem(${index})" style="padding: 8px 12px; background: rgba(255,82,82,0.2); border: 1px solid rgba(255,82,82,0.3); border-radius: 6px; color: #ff5252; cursor: pointer;">✕ Hapus</button>
+      </div>
+    `).join('');
+  }
+}
+
+function addHaditsItem() {
+  const newHadits = {
+    id: Date.now(),
+    arab: 'نَصٌّ جَدِيدٌ',
+    indonesia: '"Teks hadits baru"',
+    source: 'HR. Baru'
+  };
+  cfg.hadits.push(newHadits);
+  loadHaditsList();
+}
+
+function updateHaditsItem(index, field, value) {
+  cfg.hadits[index][field] = value;
+}
+
+function removeHaditsItem(index) {
+  cfg.hadits.splice(index, 1);
+  loadHaditsList();
+}
+
+function saveAdminSettings() {
+  cfg.nama = document.getElementById('s-nama').value;
+  cfg.alamat = document.getElementById('s-alamat').value;
+  cfg.bg = document.getElementById('s-bg').value;
+  cfg.ticker = document.getElementById('s-ticker').value;
+  cfg.haribesar = document.getElementById('s-haribesar').value;
+  cfg.hbHijri = document.getElementById('s-hb-hijri').value;
+  cfg.hbTgl = document.getElementById('s-hb-tgl').value;
+
+  cfg.kota = document.getElementById('s-kota').value;
+  cfg.slideInterval = parseInt(document.getElementById('s-slide-interval').value) || 10;
+  cfg.iqomahTime = parseInt(document.getElementById('s-iqomah').value) || 10;
+  cfg.sholat = {
+    imsak: document.getElementById('t-imsak').value,
+    subuh: document.getElementById('t-subuh').value,
+    syuruq: document.getElementById('t-terbit').value,
+    terbit: document.getElementById('t-terbit').value,
+    dzuhur: document.getElementById('t-dzuhur').value,
+    ashar: document.getElementById('t-ashar').value,
+    maghrib: document.getElementById('t-maghrib').value,
+    isya: document.getElementById('t-isya').value,
+  };
+
+  cfg.qrisUrl = document.getElementById('s-qris-url').value;
+  cfg.qrisInfo = document.getElementById('s-qris-info').value;
+
+  const newPassword = document.getElementById('s-new-password').value;
+  const confirmPassword = document.getElementById('s-confirm-password').value;
+
+  if (newPassword && newPassword === confirmPassword) {
+    cfg.password = newPassword;
+    document.getElementById('s-new-password').value = '';
+    document.getElementById('s-confirm-password').value = '';
+  } else if (newPassword && newPassword !== confirmPassword) {
+    alert('Password baru dan konfirmasi tidak cocok!');
+    return;
+  }
+
+  try {
+    localStorage.setItem('assakinah-tv-cfg', JSON.stringify(cfg));
+  } catch(e) {}
+
+  closeAdminModal();
+  applyConfig();
+  startSlideshow();
+
+  alert('✅ Pengaturan berhasil disimpan!');
+}
+
+document.getElementById('login-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('login-modal')) closeLoginModal();
+});
+
+document.getElementById('admin-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('admin-modal')) closeAdminModal();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'F11' || (e.key === 'f' && !document.getElementById('admin-modal').classList.contains('show') && !document.getElementById('login-modal').classList.contains('show'))) {
+    e.preventDefault();
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+applyConfig();
+tickClock();
+checkSholatTime();
+tickHaribesar();
+initSlideshow();
+
+setInterval(tickClock, 1000);
+setInterval(tickCountdown, 1000);
+setInterval(tickHaribesar, 1000);
+setInterval(checkSholatTime, 1000);
+setInterval(rotateHadits, 12000);
+
+setTimeout(fetchJadwalAuto, 500);
+</script>
+</body>
+</html>
